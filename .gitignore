@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.next/
+out/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+uploads/
+__pycache__/
+*.pyc
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
