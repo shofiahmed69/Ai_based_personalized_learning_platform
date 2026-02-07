@@ -1,12 +1,14 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { validate } from '../middleware/validateRequest';
+import { authRateLimiter } from '../middleware/rateLimit';
 import * as authController from '../controllers/auth.controller';
 
 const router = Router();
 
 router.post(
   '/register',
+  authRateLimiter,
   validate([
     body('email').isEmail().withMessage('Valid email required'),
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
@@ -18,6 +20,7 @@ router.post(
 
 router.post(
   '/login',
+  authRateLimiter,
   validate([
     body('email').isEmail().withMessage('Valid email required'),
     body('password').notEmpty().withMessage('Password required'),

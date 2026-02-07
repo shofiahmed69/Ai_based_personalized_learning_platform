@@ -19,7 +19,6 @@ router.post(
     body('title').trim().notEmpty().withMessage('Title required'),
     body('original_filename').trim().notEmpty().withMessage('Original filename required'),
     body('file_type').isIn(documentTypes).withMessage('Invalid file type'),
-    body('storage_path').trim().notEmpty().withMessage('Storage path required'),
     body('file_size_bytes').isInt({ min: 0 }).withMessage('File size must be non-negative'),
   ]),
   documentController.create
