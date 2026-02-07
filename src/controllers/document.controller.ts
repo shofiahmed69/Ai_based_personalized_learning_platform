@@ -13,7 +13,14 @@ export async function create(
   next: NextFunction
 ): Promise<void> {
   try {
-    const doc = await documentService.create(req.userId!, req.body);
+    const { title, original_filename, file_type, file_size_bytes } = req.body;
+    const doc = await documentService.create(req.userId!, {
+      title,
+      original_filename,
+      file_type,
+      file_size_bytes,
+      storage_path: 'MANUAL_METADATA_ONLY', // Default to dummy path if created via metadata only
+    });
     sendSuccess(res, { document: doc }, 'Document created', 201);
   } catch (error) {
     next(error);

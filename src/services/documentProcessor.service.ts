@@ -13,7 +13,8 @@ export async function processDocument(documentId: string, userId: string): Promi
   try {
     const doc = await documentService.getById(documentId, userId);
     const storagePath = doc.storage_path;
-    const filePath = path.isAbsolute(storagePath) ? storagePath : path.join(UPLOAD_DIR, path.basename(storagePath));
+    // Security: strictly use basename and join with UPLOAD_DIR to prevent path traversal / LFI
+    const filePath = path.join(UPLOAD_DIR, path.basename(storagePath));
     console.log('[Document] Processing started:', doc.title, '→', filePath);
 
     await documentService.updateStatus(documentId, userId, 'EXTRACTING');

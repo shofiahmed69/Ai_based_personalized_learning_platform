@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import { errorHandler } from './middleware/errorHandler';
 import { isGeminiConfigured } from './services/gemini.service';
 import { getPool } from './config/database';
@@ -14,7 +15,13 @@ import learningRoutes from './routes/learning.routes';
 
 const app = express();
 
-app.use(cors());
+app.use(helmet());
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : true,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // Health and config checks (no auth)
