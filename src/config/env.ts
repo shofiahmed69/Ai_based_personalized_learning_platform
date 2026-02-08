@@ -2,9 +2,10 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 // Load .env from project root (works when running from repo root or from dist/)
+// override: true ensures .env values take precedence over stale shell env vars
 const projectRoot = path.resolve(__dirname, '..', '..');
-dotenv.config({ path: path.join(projectRoot, '.env') });
-dotenv.config(); // fallback: cwd
+dotenv.config({ path: path.join(projectRoot, '.env'), override: true });
+dotenv.config({ override: true }); // fallback: cwd
 
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
@@ -15,14 +16,12 @@ export const env = {
   refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN ?? '7d',
   /** Google Gemini API key for chat and summarization. Set in .env as GEMINI_API_KEY. */
   geminiApiKey: (process.env.GEMINI_API_KEY ?? '').trim(),
-  /** Ollama base URL (e.g. http://localhost:11434). Set to use Ollama 3.2 for chat. */
-  ollamaBaseUrl: (process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434').trim(),
-  /** Ollama model (default: llama3.2). */
-  ollamaModel: (process.env.OLLAMA_MODEL ?? 'llama3.2').trim(),
-  /** Ollama request timeout in ms (default 120000 = 2 min). */
-  ollamaTimeoutMs: parseInt(process.env.OLLAMA_TIMEOUT_MS ?? '120000', 10),
-  /** AI provider: 'ollama' | 'gemini'. Leave empty to auto-detect (Ollama preferred if configured). */
-  aiProvider: ((process.env.AI_PROVIDER ?? '').trim().toLowerCase() || '') as '' | 'ollama' | 'gemini',
+  /** Groq API key for chat and summarization. Set in .env as GROQ_API_KEY. */
+  groqApiKey: (process.env.GROQ_API_KEY ?? '').trim(),
+  /** Groq model (default: llama-3.3-70b-versatile). */
+  groqModel: (process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile').trim(),
+  /** AI provider: 'groq' | 'gemini'. Leave empty to auto-detect (Groq preferred if configured). */
+  aiProvider: ((process.env.AI_PROVIDER ?? '').trim().toLowerCase() || '') as '' | 'groq' | 'gemini',
   /** YouTube Data API key for learning course video search. Set in .env as YOUTUBE_API_KEY. */
   youtubeApiKey: (process.env.YOUTUBE_API_KEY ?? '').trim(),
 } as const;

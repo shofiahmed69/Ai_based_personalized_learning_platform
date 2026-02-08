@@ -15,9 +15,10 @@ export async function getProfile(userId: string) {
     avatar_url: string | null;
     preferred_language: string;
     created_at: Date;
+    updated_at: Date;
     last_login_at: Date | null;
   }>(
-    `SELECT id, email, display_name, avatar_url, preferred_language, created_at, last_login_at
+    `SELECT id, email, display_name, avatar_url, preferred_language, created_at, updated_at, last_login_at
      FROM users WHERE id = $1 AND is_active = true`,
     [userId]
   );
@@ -51,9 +52,10 @@ export async function updateProfile(userId: string, input: UpdateProfileInput) {
     avatar_url: string | null;
     preferred_language: string;
     created_at: Date;
+    updated_at: Date;
   }>(
     `UPDATE users SET ${updates.join(', ')} WHERE id = $${i} AND is_active = true
-     RETURNING id, email, display_name, avatar_url, preferred_language, created_at`,
+     RETURNING id, email, display_name, avatar_url, preferred_language, created_at, updated_at`,
     values
   );
   const user = rows[0];

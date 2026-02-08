@@ -12,6 +12,9 @@ class AuthService {
 
   final ApiClient _api = apiClient;
 
+  /// Called when token refresh fails and user is logged out. Set by AuthProvider.
+  static void Function()? onLoggedOut;
+
   Future<ApiResponse> login(String email, String password) async {
     final res = await _api.post('/api/auth/login', body: {
       'email': email,
@@ -61,6 +64,40 @@ class AuthService {
   Future<String?> getAccessToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_keyAccessToken);
+  }
+
+  Future<String?> getRefreshToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyRefreshToken);
+  }
+
+  /// Refresh access token using refresh token. Returns true if successful.
+  Future<bool> refreshToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final refreshToken = prefs.getString(_keyRefreshToken);
+    if (refreshToken == null || refreshToken.isEmpty) return false;
+
+    final res = await _api.post('/api/auth/refresh', body: {'refresh_token': refreshToken});
+    if (res.success && res.data != null) {
+      await _saveAuth(res.data as Map<String, dynamic>);
+      return true;
+    }
+    await logout();
+    onLoggedOut?.call();
+    return false;
+  }
+
+  Future<void> saveUser(User user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyUser, jsonEncode({
+      'id': user.id,
+      'email': user.email,
+      'display_name': user.displayName,
+      'avatar_url': user.avatarUrl,
+      'preferred_language': user.preferredLanguage,
+      'created_at': user.createdAt,
+      'updated_at': user.updatedAt,
+    }));
   }
 
   Future<User?> getStoredUser() async {

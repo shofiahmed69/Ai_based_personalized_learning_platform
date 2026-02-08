@@ -5,6 +5,7 @@ import '../services/api_client.dart';
 import '../services/auth_service.dart';
 import '../services/conversation_service.dart';
 import '../theme/app_theme.dart';
+import '../utils/error_utils.dart';
 import 'chat_screen.dart';
 
 class ConversationListScreen extends StatefulWidget {
@@ -39,6 +40,36 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
         _error = res.error ?? 'Failed to load';
       }
     });
+  }
+
+  Future<void> _confirmDelete(Conversation c) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete chat'),
+        content: Text('Delete "${c.displayTitle}"? This cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.error),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && mounted) await _delete(c.id);
+  }
+
+  Future<void> _delete(String id) async {
+    final res = await archiveConversation(id);
+    if (!mounted) return;
+    if (res.success) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Chat deleted')));
+      _load();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res.error ?? 'Failed to delete')));
+    }
   }
 
   Future<void> _createAndOpen() async {
@@ -79,13 +110,22 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
           ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(_error!, style: Theme.of(context).textTheme.bodyLarge),
-                      const SizedBox(height: 16),
-                      FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh), label: const Text('Retry')),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.cloud_off, size: 48, color: AppTheme.onSurfaceMuted),
+                        const SizedBox(height: 16),
+                        Text(
+                          formatApiError(_error),
+                          style: Theme.of(context).textTheme.bodyLarge,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh), label: const Text('Retry')),
+                      ],
+                    ),
                   ),
                 )
               : _convs.isEmpty
@@ -120,7 +160,16 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                               leading: const Icon(Icons.chat_bubble_outline, color: AppTheme.primary),
                               title: Text(c.displayTitle),
                               subtitle: Text(_formatDate(c.updatedAt)),
-                              trailing: const Icon(Icons.chevron_right),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_outline, color: AppTheme.error),
+                                    onPressed: () => _confirmDelete(c),
+                                  ),
+                                  const Icon(Icons.chevron_right),
+                                ],
+                              ),
                               onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(

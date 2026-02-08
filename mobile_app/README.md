@@ -46,4 +46,5 @@ flutter run -d R5CT718DEGP --dart-define=API_BASE_URL=http://192.168.0.105:3000
 
 - **Auth**: Login, Register, Logout
 - **Documents**: List, upload (PDF, DOCX, TXT, MD), view detail with summary
-- **Chat**: Create conversations, send messages, receive AI replies (Ollama/Gemini)
+- **Chat**: Create conversations, send messages, receive AI replies (Groq/Gemini)
+- **Learning Path**: CSE courses from YouTube (REST API, Node.js, HTML, Java, C, Python, React, MongoDB, SQL, DSA). Requires YOUTUBE_API_KEY in backend .env.

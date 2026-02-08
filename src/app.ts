@@ -35,7 +35,7 @@ app.get('/health', async (_req, res) => {
 
 app.get('/api/config', (_req, res) => {
   res.json({
-    groq_configured: isAIConfigured(), // AI configured (Ollama or Gemini)
+    groq_configured: isAIConfigured(), // AI configured (Groq or Gemini)
   });
 });
 

@@ -26,6 +26,7 @@ export interface AuthResult {
     display_name: string | null;
     preferred_language: string;
     created_at: Date;
+    updated_at?: Date;
   };
   accessToken: string;
   refreshToken: string;
@@ -43,10 +44,10 @@ export async function register(input: RegisterInput): Promise<AuthResult> {
   const passwordHash = await bcrypt.hash(input.password, SALT_ROUNDS);
   const preferredLanguage = input.preferred_language ?? 'en';
 
-  const users = await query<{ id: string; email: string; display_name: string | null; preferred_language: string; created_at: Date }>(
+  const users = await query<{ id: string; email: string; display_name: string | null; preferred_language: string; created_at: Date; updated_at: Date }>(
     `INSERT INTO users (email, password_hash, display_name, preferred_language)
      VALUES ($1, $2, $3, $4)
-     RETURNING id, email, display_name, preferred_language, created_at`,
+     RETURNING id, email, display_name, preferred_language, created_at, updated_at`,
     [input.email, passwordHash, input.display_name ?? null, preferredLanguage]
   );
   const user = users[0];
@@ -64,8 +65,9 @@ export async function login(input: LoginInput): Promise<AuthResult> {
     display_name: string | null;
     preferred_language: string;
     created_at: Date;
+    updated_at: Date;
   }>(
-    'SELECT id, email, password_hash, display_name, preferred_language, created_at FROM users WHERE email = $1 AND is_active = true',
+    'SELECT id, email, password_hash, display_name, preferred_language, created_at, updated_at FROM users WHERE email = $1 AND is_active = true',
     [input.email]
   );
   const user = users[0];
@@ -95,6 +97,7 @@ export async function login(input: LoginInput): Promise<AuthResult> {
       display_name: user.display_name,
       preferred_language: user.preferred_language,
       created_at: user.created_at,
+      updated_at: user.updated_at,
     },
     ...tokens,
   };

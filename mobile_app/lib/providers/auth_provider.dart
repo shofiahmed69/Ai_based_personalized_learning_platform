@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/user.dart';
+import '../services/api_client.dart';
 import '../services/auth_service.dart';
+import '../services/user_service.dart' as userService;
 
 class AuthProvider with ChangeNotifier {
   final AuthService _auth = AuthService();
@@ -17,6 +19,12 @@ class AuthProvider with ChangeNotifier {
   Future<void> init() async {
     _isLoading = true;
     notifyListeners();
+    apiClient.setOn401Callback(() => _auth.refreshToken());
+    AuthService.onLoggedOut = () {
+      _user = null;
+      _isAuthenticated = false;
+      notifyListeners();
+    };
     final hasToken = await _auth.loadStoredAuth();
     if (hasToken) {
       _user = await _auth.getStoredUser();
@@ -56,5 +64,16 @@ class AuthProvider with ChangeNotifier {
     _user = null;
     _isAuthenticated = false;
     notifyListeners();
+  }
+
+  Future<String?> updateDisplayName(String displayName) async {
+    final res = await userService.updateProfile(displayName: displayName);
+    if (res.success && res.data != null) {
+      _user = res.data as User;
+      await _auth.saveUser(_user!);
+      notifyListeners();
+      return null;
+    }
+    return res.error ?? 'Update failed';
   }
 }

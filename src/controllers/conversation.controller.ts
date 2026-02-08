@@ -70,12 +70,16 @@ export async function addMessage(
           req.userId!
         );
       } catch (err) {
-        console.error('[Chat] Gemini reply failed:', err instanceof Error ? err.message : err);
+        console.error('[Chat] Groq reply failed:', err instanceof Error ? err.message : err);
       }
     }
+    const assistantPayload =
+      assistantMessage != null
+        ? { ...assistantMessage, conversation_id: req.params.id }
+        : undefined;
     sendSuccess(
       res,
-      { message: msg, assistantMessage: assistantMessage ?? undefined },
+      { message: msg, assistantMessage: assistantPayload },
       'Message added',
       201
     );

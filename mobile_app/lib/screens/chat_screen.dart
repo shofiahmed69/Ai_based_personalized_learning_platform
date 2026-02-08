@@ -74,13 +74,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (res.success && res.data != null) {
       final d = res.data as Map<String, dynamic>;
-      final msg = d['message'] as Map<String, dynamic>?;
       final assistantMsg = d['assistantMessage'] as Map<String, dynamic>?;
       if (assistantMsg != null) {
         setState(() => _messages = [..._messages, Message.fromJson(assistantMsg)]);
         _scrollToBottom();
-      } else if (msg != null) {
-        setState(() => _messages = [..._messages, Message.fromJson(msg)]);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('AI failed to respond. Please try again.')),
+        );
       }
     } else {
       setState(() => _messages = _messages.sublist(0, _messages.length - 1));
@@ -105,8 +106,22 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: Text(_conv?.displayTitle ?? 'Chat'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(_conv?.displayTitle ?? 'Chat'),
+            Text(
+              'Powered by Groq AI',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppTheme.onSurfaceMuted,
+                    fontSize: 11,
+                  ),
+            ),
+          ],
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),

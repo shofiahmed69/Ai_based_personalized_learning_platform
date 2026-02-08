@@ -37,3 +37,7 @@ Future<ApiResponse> sendMessage(String conversationId, String content) async {
     'content': content,
   });
 }
+
+Future<ApiResponse> archiveConversation(String conversationId) async {
+  return _api.post('/api/conversations/$conversationId/archive');
+}

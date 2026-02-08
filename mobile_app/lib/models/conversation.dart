@@ -43,14 +43,14 @@ class Message {
   });
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(
-        id: json['id'] as String,
-        conversationId: json['conversation_id'] as String,
-        role: json['role'] as String,
-        content: json['content'] as String,
+        id: (json['id'] as String?) ?? '',
+        conversationId: (json['conversation_id'] as String?) ?? '',
+        role: (json['role'] as String?) ?? 'assistant',
+        content: (json['content'] as String?) ?? '',
         sources: json['sources'] as List<dynamic>?,
         memoriesUsed: json['memories_used'] as List<dynamic>?,
         groqUsage: json['groq_usage'] as Map<String, dynamic>?,
-        createdAt: json['created_at'] as String,
+        createdAt: (json['created_at'] as String?) ?? DateTime.now().toIso8601String(),
       );
 
   bool get isUser => role == 'user';

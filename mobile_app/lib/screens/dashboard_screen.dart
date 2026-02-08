@@ -5,6 +5,8 @@ import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import 'documents_screen.dart';
 import 'conversation_list_screen.dart';
+import 'learning_path_screen.dart';
+import 'profile_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -17,21 +19,11 @@ class DashboardScreen extends StatelessWidget {
         title: const Text('AI Knowledge Base'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              final ok = await showDialog<bool>(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: const Text('Sign out'),
-                  content: const Text('Are you sure you want to sign out?'),
-                  actions: [
-                    TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-                    FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Sign out')),
-                  ],
-                ),
-              );
-              if (ok == true && context.mounted) auth.logout();
-            },
+            icon: const Icon(Icons.person_outline),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            ),
           ),
         ],
       ),
@@ -67,6 +59,26 @@ class DashboardScreen extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const ConversationListScreen()),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _NavCard(
+              title: 'Learning Path',
+              subtitle: 'CSE courses: REST API, Node.js, HTML, Java, C, Python, React & more',
+              icon: Icons.school_outlined,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const LearningPathScreen()),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _NavCard(
+              title: 'Profile',
+              subtitle: 'Update name and sign out',
+              icon: Icons.person_outlined,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfileScreen()),
               ),
             ),
           ],

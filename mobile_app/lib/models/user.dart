@@ -17,15 +17,19 @@ class User {
     required this.updatedAt,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
-        id: json['id'] as String,
-        email: json['email'] as String,
-        displayName: json['display_name'] as String?,
-        avatarUrl: json['avatar_url'] as String?,
-        preferredLanguage: json['preferred_language'] as String? ?? 'en',
-        createdAt: json['created_at'] as String,
-        updatedAt: json['updated_at'] as String,
-      );
+  factory User.fromJson(Map<String, dynamic> json) {
+    final createdAt = json['created_at'];
+    final updatedAt = json['updated_at'];
+    return User(
+      id: json['id'] as String,
+      email: json['email'] as String,
+      displayName: json['display_name'] as String?,
+      avatarUrl: json['avatar_url'] as String?,
+      preferredLanguage: json['preferred_language'] as String? ?? 'en',
+      createdAt: createdAt != null ? createdAt.toString() : DateTime.now().toIso8601String(),
+      updatedAt: updatedAt != null ? updatedAt.toString() : (createdAt?.toString() ?? DateTime.now().toIso8601String()),
+    );
+  }
 
   String get displayLabel => displayName ?? email.split('@').first;
 }

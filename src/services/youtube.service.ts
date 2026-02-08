@@ -73,11 +73,12 @@ export async function searchLearningVideos(summary: string): Promise<LearningCou
     }>;
   };
 
+  const toHttps = (u: string) => (u && u.startsWith('//') ? `https:${u}` : u) || '';
   const videos: LearningCourseVideo[] = [];
   for (const item of data.items ?? []) {
     if (item.id?.kind !== 'youtube#video' || !item.id.videoId) continue;
     const sn = item.snippet;
-    const thumb = sn?.thumbnails?.medium?.url ?? sn?.thumbnails?.default?.url ?? '';
+    const thumb = toHttps(sn?.thumbnails?.medium?.url ?? sn?.thumbnails?.default?.url ?? '');
     videos.push({
       videoId: item.id.videoId,
       title: sn?.title ?? 'Video',
@@ -91,10 +92,16 @@ export async function searchLearningVideos(summary: string): Promise<LearningCou
 
 /** CSE (Computer Science & Engineering) learning search queries for the Learning section. */
 const CSE_SEARCH_QUERIES = [
-  'CSE full course computer science engineering',
-  'computer science engineering tutorial for beginners',
+  'REST API tutorial full course',
+  'Node.js course for beginners',
+  'HTML CSS JavaScript full course',
+  'Java programming tutorial for beginners',
+  'C programming full course',
+  'Python programming tutorial',
+  'React.js full course',
+  'MongoDB tutorial for beginners',
+  'SQL database course',
   'data structures and algorithms course',
-  'programming fundamentals full course',
 ];
 
 /**
@@ -112,7 +119,7 @@ export async function searchCseLearningCourses(): Promise<LearningCourseVideo[]>
       part: 'snippet',
       q,
       type: 'video',
-      maxResults: '6',
+      maxResults: '4',
       key: getApiKey(),
       safeSearch: 'moderate',
       relevanceLanguage: 'en',
@@ -131,12 +138,13 @@ export async function searchCseLearningCourses(): Promise<LearningCourseVideo[]>
           };
         }>;
       };
+      const toHttps = (u: string) => (u && u.startsWith('//') ? `https:${u}` : u) || '';
       for (const item of data.items ?? []) {
         if (item.id?.kind !== 'youtube#video' || !item.id.videoId || seen.has(item.id.videoId))
           continue;
         seen.add(item.id.videoId);
         const sn = item.snippet;
-        const thumb = sn?.thumbnails?.medium?.url ?? sn?.thumbnails?.default?.url ?? '';
+        const thumb = toHttps(sn?.thumbnails?.medium?.url ?? sn?.thumbnails?.default?.url ?? '');
         results.push({
           videoId: item.id.videoId,
           title: sn?.title ?? 'Video',
@@ -151,4 +159,60 @@ export async function searchCseLearningCourses(): Promise<LearningCourseVideo[]>
   }
 
   return results;
+}
+
+/**
+ * Search YouTube for any course/tutorial by user query.
+ * Returns up to 12 videos.
+ */
+export async function searchYouTubeByQuery(query: string): Promise<LearningCourseVideo[]> {
+  if (!isYouTubeConfigured()) return [];
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const searchQuery = `${trimmed} course tutorial`;
+  const params = new URLSearchParams({
+    part: 'snippet',
+    q: searchQuery,
+    type: 'video',
+    maxResults: '12',
+    key: getApiKey(),
+    safeSearch: 'moderate',
+    relevanceLanguage: 'en',
+  });
+
+  const url = `https://www.googleapis.com/youtube/v3/search?${params.toString()}`;
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    console.error('[YouTube] Search API error:', res.status, await res.text());
+    return [];
+  }
+
+  const data = (await res.json()) as {
+    items?: Array<{
+      id?: { kind?: string; videoId?: string };
+      snippet?: {
+        title?: string;
+        channelTitle?: string;
+        thumbnails?: { default?: { url?: string }; medium?: { url?: string } };
+      };
+    }>;
+  };
+
+  const toHttps = (u: string) => (u && u.startsWith('//') ? `https:${u}` : u) || '';
+  const videos: LearningCourseVideo[] = [];
+  for (const item of data.items ?? []) {
+    if (item.id?.kind !== 'youtube#video' || !item.id.videoId) continue;
+    const sn = item.snippet;
+    const thumb = toHttps(sn?.thumbnails?.medium?.url ?? sn?.thumbnails?.default?.url ?? '');
+    videos.push({
+      videoId: item.id.videoId,
+      title: sn?.title ?? 'Video',
+      channelTitle: sn?.channelTitle ?? '',
+      thumbnailUrl: thumb,
+      url: `https://www.youtube.com/watch?v=${item.id.videoId}`,
+    });
+  }
+  return videos;
 }

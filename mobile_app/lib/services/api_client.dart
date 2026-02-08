@@ -9,11 +9,16 @@ final apiClient = ApiClient();
 class ApiClient {
   final String baseUrl;
   String? _accessToken;
+  Future<bool> Function()? _on401;
 
   ApiClient({String? baseUrl}) : baseUrl = baseUrl ?? kApiBaseUrl;
 
   void setToken(String? token) {
     _accessToken = token;
+  }
+
+  void setOn401Callback(Future<bool> Function()? callback) {
+    _on401 = callback;
   }
 
   Map<String, String> get _headers => {
@@ -23,10 +28,20 @@ class ApiClient {
 
   Future<ApiResponse> get(String path) async {
     try {
-      final res = await http
+      var res = await http
           .get(Uri.parse('$baseUrl$path'), headers: _headers)
           .timeout(const Duration(seconds: 30));
-      return _handleResponse(res);
+      var result = _handleResponse(res);
+      if (result.statusCode == 401 &&
+          path != '/api/auth/refresh' &&
+          _on401 != null &&
+          await _on401!()) {
+        res = await http
+            .get(Uri.parse('$baseUrl$path'), headers: _headers)
+            .timeout(const Duration(seconds: 30));
+        result = _handleResponse(res);
+      }
+      return result;
     } catch (e) {
       return ApiResponse.error(e.toString());
     }
@@ -34,14 +49,28 @@ class ApiClient {
 
   Future<ApiResponse> post(String path, {Map<String, dynamic>? body}) async {
     try {
-      final res = await http
+      var res = await http
           .post(
             Uri.parse('$baseUrl$path'),
             headers: _headers,
             body: body != null ? jsonEncode(body) : null,
           )
           .timeout(const Duration(seconds: 30));
-      return _handleResponse(res);
+      var result = _handleResponse(res);
+      if (result.statusCode == 401 &&
+          path != '/api/auth/refresh' &&
+          _on401 != null &&
+          await _on401!()) {
+        res = await http
+            .post(
+              Uri.parse('$baseUrl$path'),
+              headers: _headers,
+              body: body != null ? jsonEncode(body) : null,
+            )
+            .timeout(const Duration(seconds: 30));
+        result = _handleResponse(res);
+      }
+      return result;
     } catch (e) {
       return ApiResponse.error(e.toString());
     }
@@ -49,14 +78,28 @@ class ApiClient {
 
   Future<ApiResponse> patch(String path, {Map<String, dynamic>? body}) async {
     try {
-      final res = await http
+      var res = await http
           .patch(
             Uri.parse('$baseUrl$path'),
             headers: _headers,
             body: body != null ? jsonEncode(body) : null,
           )
           .timeout(const Duration(seconds: 30));
-      return _handleResponse(res);
+      var result = _handleResponse(res);
+      if (result.statusCode == 401 &&
+          path != '/api/auth/refresh' &&
+          _on401 != null &&
+          await _on401!()) {
+        res = await http
+            .patch(
+              Uri.parse('$baseUrl$path'),
+              headers: _headers,
+              body: body != null ? jsonEncode(body) : null,
+            )
+            .timeout(const Duration(seconds: 30));
+        result = _handleResponse(res);
+      }
+      return result;
     } catch (e) {
       return ApiResponse.error(e.toString());
     }
@@ -64,10 +107,20 @@ class ApiClient {
 
   Future<ApiResponse> delete(String path) async {
     try {
-      final res = await http
+      var res = await http
           .delete(Uri.parse('$baseUrl$path'), headers: _headers)
           .timeout(const Duration(seconds: 30));
-      return _handleResponse(res);
+      var result = _handleResponse(res);
+      if (result.statusCode == 401 &&
+          path != '/api/auth/refresh' &&
+          _on401 != null &&
+          await _on401!()) {
+        res = await http
+            .delete(Uri.parse('$baseUrl$path'), headers: _headers)
+            .timeout(const Duration(seconds: 30));
+        result = _handleResponse(res);
+      }
+      return result;
     } catch (e) {
       return ApiResponse.error(e.toString());
     }

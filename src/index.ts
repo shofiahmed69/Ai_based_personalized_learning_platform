@@ -8,9 +8,9 @@ const server = app.listen(env.port, '0.0.0.0', () => {
   const aiOk = isAIConfigured();
   const provider = getAIProvider();
   if (aiOk && provider) {
-    console.log(`AI: ${provider === 'ollama' ? 'Ollama (llama3.2)' : 'Gemini'} configured`);
+    console.log(`AI: ${provider === 'groq' ? 'Groq' : 'Gemini'} configured`);
   } else {
-    console.log('AI: NOT configured. Set OLLAMA_BASE_URL (run ollama pull llama3.2) or GEMINI_API_KEY');
+    console.log('AI: NOT configured. Set GROQ_API_KEY or GEMINI_API_KEY');
   }
   getPool()
     .query('SELECT 1')
