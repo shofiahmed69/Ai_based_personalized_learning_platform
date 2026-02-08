@@ -1,6 +1,6 @@
 import { query } from '../config/database';
 import { AppError } from '../utils/AppError';
-import { chatCompletion, isGeminiConfigured } from './gemini.service';
+import { chatCompletion, isAIConfigured } from './ai.service';
 
 export type MessageRole = 'user' | 'assistant' | 'system';
 
@@ -108,7 +108,7 @@ export async function generateAndAddAssistantReply(
   conversationId: string,
   userId: string
 ): Promise<{ id: string; role: string; content: string; created_at: Date } | null> {
-  if (!isGeminiConfigured()) return null;
+  if (!isAIConfigured()) return null;
   const { messages } = await getMessages(conversationId, userId, MAX_HISTORY_MESSAGES);
   const geminiMessages: { role: string; content: string }[] = [
     { role: 'system', content: SYSTEM_PROMPT },

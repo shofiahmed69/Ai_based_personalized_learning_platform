@@ -14,3 +14,5 @@ __pycache__/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*.local
+# Never commit real .env — copy .env.example to .env and fill in locally

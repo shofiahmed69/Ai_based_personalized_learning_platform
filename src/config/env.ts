@@ -15,6 +15,14 @@ export const env = {
   refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN ?? '7d',
   /** Google Gemini API key for chat and summarization. Set in .env as GEMINI_API_KEY. */
   geminiApiKey: (process.env.GEMINI_API_KEY ?? '').trim(),
+  /** Ollama base URL (e.g. http://localhost:11434). Set to use Ollama 3.2 for chat. */
+  ollamaBaseUrl: (process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434').trim(),
+  /** Ollama model (default: llama3.2). */
+  ollamaModel: (process.env.OLLAMA_MODEL ?? 'llama3.2').trim(),
+  /** Ollama request timeout in ms (default 120000 = 2 min). */
+  ollamaTimeoutMs: parseInt(process.env.OLLAMA_TIMEOUT_MS ?? '120000', 10),
+  /** AI provider: 'ollama' | 'gemini'. Leave empty to auto-detect (Ollama preferred if configured). */
+  aiProvider: ((process.env.AI_PROVIDER ?? '').trim().toLowerCase() || '') as '' | 'ollama' | 'gemini',
   /** YouTube Data API key for learning course video search. Set in .env as YOUTUBE_API_KEY. */
   youtubeApiKey: (process.env.YOUTUBE_API_KEY ?? '').trim(),
 } as const;

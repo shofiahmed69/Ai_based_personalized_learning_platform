@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { errorHandler } from './middleware/errorHandler';
-import { isGeminiConfigured } from './services/gemini.service';
+import { isAIConfigured } from './services/ai.service';
 import { getPool } from './config/database';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
@@ -35,7 +35,7 @@ app.get('/health', async (_req, res) => {
 
 app.get('/api/config', (_req, res) => {
   res.json({
-    groq_configured: isGeminiConfigured(), // kept key for frontend compatibility; backend uses Gemini
+    groq_configured: isAIConfigured(), // AI configured (Ollama or Gemini)
   });
 });
 

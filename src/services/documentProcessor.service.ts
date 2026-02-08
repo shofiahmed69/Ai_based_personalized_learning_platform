@@ -1,6 +1,6 @@
 import * as documentService from './document.service';
 import { extractTextFromFile } from './extract.service';
-import { summarizeWithGemini, isGeminiConfigured } from './gemini.service';
+import { summarize, isAIConfigured } from './ai.service';
 import { searchLearningVideos } from './youtube.service';
 import { UPLOAD_DIR } from '../config/upload';
 import path from 'path';
@@ -40,11 +40,13 @@ export async function processDocument(documentId: string, userId: string): Promi
     await documentService.updateStatus(documentId, userId, 'CHUNKING');
 
     let summary: string;
-    if (isGeminiConfigured()) {
+    if (isAIConfigured()) {
+      console.log('[Document] Summarizing with AI:', doc.title, '(', fullText.length, 'chars)');
       try {
-        summary = await summarizeWithGemini(fullText, doc.title);
-      } catch (geminiErr) {
-        console.error('[Document] Gemini summarization failed:', doc.id, geminiErr instanceof Error ? geminiErr.message : geminiErr);
+        summary = await summarize(fullText, doc.title);
+        console.log('[Document] Summary done:', doc.title);
+      } catch (aiErr) {
+        console.error('[Document] AI summarization failed:', doc.id, aiErr instanceof Error ? aiErr.message : aiErr);
         summary = fullText.slice(0, 500) + (fullText.length > 500 ? '…' : '');
       }
     } else {
