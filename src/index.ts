@@ -3,7 +3,7 @@ import { env } from './config/env';
 import { getPool, closePool } from './config/database';
 import { isAIConfigured, getAIProvider } from './services/ai.service';
 
-const server = app.listen(env.port, () => {
+const server = app.listen(env.port, '0.0.0.0', () => {
   console.log(`Server listening on port ${env.port} (${env.nodeEnv})`);
   const aiOk = isAIConfigured();
   const provider = getAIProvider();
